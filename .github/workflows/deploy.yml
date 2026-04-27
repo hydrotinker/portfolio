@@ -112,11 +112,11 @@ jobs:
             deploy "$IMAGE_TAG"
 
             # ── Health check ─────────────────────────────────────────────────
-            # Hits the app directly on the host-mapped port — no reverse proxy
-            # in the way, so this works even while Traefik is propagating.
+            # Uses the public URL so the check validates Traefik routing too.
+            APP_DOMAIN=$(grep '^APP_DOMAIN=' .env | cut -d= -f2)
             echo "Running health check..."
             RETRIES=6
-            until curl -sf --max-time 10 http://127.0.0.1:3001/api/health; do
+            until curl -sf --max-time 10 "https://${APP_DOMAIN}/api/health"; do
               RETRIES=$((RETRIES - 1))
               if [ "$RETRIES" -eq 0 ]; then
                 echo ""
