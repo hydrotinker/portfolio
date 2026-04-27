@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [master]
 
 env:
   APP_IMAGE: ghcr.io/${{ github.repository }}/app
@@ -88,8 +88,8 @@ jobs:
             }
 
             # ── Update repo (compose files, nginx config, etc.) ──────────────
-            git fetch origin main
-            git reset --hard origin/main
+            git fetch origin master
+            git reset --hard origin/master
 
             # ── Auto-update VERSION and build dates in .env ──────────────────
             # VERSION uses CalVer: YYYY.M.D  (no zero-padding on month/day)
