@@ -23,4 +23,8 @@ logs
 .env.*
 !.env.example
 
+# CI/CD rollback backup (created on server, never committed)
+.env.prev
+.deployed-tag
+
 package-lock.json

@@ -1,0 +1,21 @@
+services:
+  app:
+    build:
+      context: .
+      target: prod
+    env_file:
+      - .env
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.hydrotinker.rule=Host(`${APP_DOMAIN}`)
+      - traefik.http.routers.hydrotinker.entrypoints=websecure
+      - traefik.http.routers.hydrotinker.tls.certresolver=le
+      - traefik.http.services.hydrotinker.loadbalancer.server.port=3000
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+    name: proxy

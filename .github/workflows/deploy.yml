@@ -1,0 +1,152 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+env:
+  APP_IMAGE: ghcr.io/${{ github.repository }}/app
+
+# ─────────────────────────────────────────────────────────────────────────────
+# JOB 1 — Build image and push to GitHub Container Registry (GHCR)
+# ─────────────────────────────────────────────────────────────────────────────
+jobs:
+  build:
+    name: Build & push image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build & push app
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          target: prod
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.APP_IMAGE }}:${{ github.sha }}
+            ${{ env.APP_IMAGE }}:latest
+          cache-from: type=gha,scope=app
+          cache-to:   type=gha,mode=min,scope=app
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # JOB 2 — Deploy to production via SSH
+  # ─────────────────────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to production
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+
+    concurrency:
+      group: production
+      cancel-in-progress: false
+
+    steps:
+      - name: Deploy with automatic rollback
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: GITHUB_SHA,GITHUB_REPOSITORY
+          command_timeout: 10m
+          script: |
+            set -e
+            cd /srv/hydrotinker
+
+            export IMAGE_TAG=$GITHUB_SHA
+            export REPO=$GITHUB_REPOSITORY
+
+            COMPOSE="docker compose -f compose.yaml -f compose.prod.yaml -f compose.registry.yaml"
+
+            # ── Save the currently running tag for potential rollback ─────────
+            PREV_TAG=$(cat .deployed-tag 2>/dev/null || echo "")
+            echo "Previous tag : ${PREV_TAG:-none}"
+            echo "Deploying    : $IMAGE_TAG"
+
+            # ── Helper: pull images for a given tag and restart containers ───
+            deploy() {
+              export IMAGE_TAG=$1
+              $COMPOSE pull
+              $COMPOSE up -d
+            }
+
+            # ── Update repo (compose files, nginx config, etc.) ──────────────
+            git fetch origin main
+            git reset --hard origin/main
+
+            # ── Auto-update VERSION and build dates in .env ──────────────────
+            # VERSION uses CalVer: YYYY.M.D  (no zero-padding on month/day)
+            VERSION="$(date -u +'%Y.%-m.%-d')"
+            BUILD_YEAR="$(date -u +'%Y')"
+            BUILD_MONTH="$(date -u +'%m')"
+            BUILD_DAY="$(date -u +'%d')"
+
+            # Backup .env so rollback can restore it
+            cp .env .env.prev
+
+            sed -i "s/^VERSION=.*/VERSION=${VERSION}/"         .env
+            sed -i "s/^BUILD_YEAR=.*/BUILD_YEAR=${BUILD_YEAR}/" .env
+            sed -i "s/^BUILD_MONTH=.*/BUILD_MONTH=${BUILD_MONTH}/" .env
+            sed -i "s/^BUILD_DAY=.*/BUILD_DAY=${BUILD_DAY}/"   .env
+
+            echo "Version      : $VERSION (${BUILD_YEAR}-${BUILD_MONTH}-${BUILD_DAY})"
+
+            # ── Deploy new image ─────────────────────────────────────────────
+            deploy "$IMAGE_TAG"
+
+            # ── Reload nginx ──────────────────────────────────────────────────
+            # nginx caches upstream IPs at startup; reload picks up any config
+            # changes from the repo and re-resolves the app container's address.
+            $COMPOSE exec -T nginx nginx -s reload
+
+            # ── Health check ─────────────────────────────────────────────────
+            echo "Running health check..."
+            RETRIES=6
+            until curl -sf --max-time 10 -k \
+                  -H "Host: hydrotinker.sl-project.online" \
+                  https://127.0.0.1/api/health; do
+              RETRIES=$((RETRIES - 1))
+              if [ "$RETRIES" -eq 0 ]; then
+                echo ""
+                echo "Health check failed after all retries."
+
+                # ── Rollback ─────────────────────────────────────────────────
+                if [ -n "$PREV_TAG" ]; then
+                  echo "Rolling back to $PREV_TAG ..."
+                  # Restore the previous .env (restores old version strings)
+                  mv .env.prev .env
+                  deploy "$PREV_TAG"
+                  $COMPOSE exec -T nginx nginx -s reload
+                  echo "Rollback complete. Previous version is live."
+                else
+                  echo "No previous tag to roll back to."
+                fi
+
+                exit 1
+              fi
+              echo "Not ready yet — retrying in 10 s ($RETRIES left)..."
+              sleep 10
+            done
+
+            # ── Record successful tag ────────────────────────────────────────
+            echo "$IMAGE_TAG" > .deployed-tag
+            rm -f .env.prev
+            echo ""
+            echo "Deploy complete. $IMAGE_TAG ($VERSION) is live."
