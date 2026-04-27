@@ -101,10 +101,10 @@ jobs:
             # Backup .env so rollback can restore it
             cp .env .env.prev
 
-            sed -i "s/^VERSION=.*/VERSION=${VERSION}/"         .env
-            sed -i "s/^BUILD_YEAR=.*/BUILD_YEAR=${BUILD_YEAR}/" .env
-            sed -i "s/^BUILD_MONTH=.*/BUILD_MONTH=${BUILD_MONTH}/" .env
-            sed -i "s/^BUILD_DAY=.*/BUILD_DAY=${BUILD_DAY}/"   .env
+            sed -i "s/^NUXT_PUBLIC_VERSION=.*/NUXT_PUBLIC_VERSION=${VERSION}/"         .env
+            sed -i "s/^NUXT_PUBLIC_BUILD_YEAR=.*/NUXT_PUBLIC_BUILD_YEAR=${BUILD_YEAR}/" .env
+            sed -i "s/^NUXT_PUBLIC_BUILD_MONTH=.*/NUXT_PUBLIC_BUILD_MONTH=${BUILD_MONTH}/" .env
+            sed -i "s/^NUXT_PUBLIC_BUILD_DAY=.*/NUXT_PUBLIC_BUILD_DAY=${BUILD_DAY}/"   .env
 
             echo "Version      : $VERSION (${BUILD_YEAR}-${BUILD_MONTH}-${BUILD_DAY})"
 

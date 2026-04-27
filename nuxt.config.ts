@@ -41,18 +41,13 @@ export default defineNuxtConfig({
         },
     },
     runtimeConfig: {
-        gmailAppPassword: process.env.GMAIL_APP_PASSWORD,
+        // Overridden at runtime by NUXT_GMAIL_APP_PASSWORD
+        gmailAppPassword: '',
         public: {
-            version: process.env.VERSION,
-            coords: {
-                n: process.env.COORD_N,
-                e: process.env.COORD_E,
-            },
-            build: {
-                year: process.env.BUILD_YEAR,
-                month: process.env.BUILD_MONTH,
-                day: process.env.BUILD_DAY,
-            },
+            // Each key overridden at runtime by NUXT_PUBLIC_<KEY> env var
+            version: '',
+            coords: { n: '', e: '' },
+            build: { year: '', month: '', day: '' },
         },
     },
     vite: {
