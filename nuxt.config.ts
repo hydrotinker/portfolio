@@ -4,9 +4,10 @@ export default defineNuxtConfig({
     compatibilityDate: "2025-07-15",
     devtools: { enabled: true },
     css: ["./app/assets/css/main.css"],
-    ssr: false,
+
     app: {
         head: {
+            htmlAttrs: { lang: "en" },
             link: [
                 { rel: "preconnect", href: "https://fonts.googleapis.com" },
                 {
@@ -32,25 +33,32 @@ export default defineNuxtConfig({
                     href: "/apple-touch-icon.png",
                 },
             ],
-            title: "Hydrotinker Personal Hub",
+            title: "Hydrotinker — Senior Fullstack PHP Developer | Available for Hire",
         },
     },
+
     router: {
         options: {
             scrollBehaviorType: "smooth",
         },
     },
+
     runtimeConfig: {
-        // Overridden at runtime by NUXT_GMAIL_APP_PASSWORD
-        gmailAppPassword: '',
+        gmailAppPassword: "",
         public: {
-            // Each key overridden at runtime by NUXT_PUBLIC_<KEY> env var
-            version: '',
-            coords: { n: '', e: '' },
-            build: { year: '', month: '', day: '' },
+            version: "",
+            coords: { n: "", e: "" },
+            build: { year: "", month: "", day: "" },
         },
     },
+
+    site: {
+        url: "https://hydrotinker.online",
+    },
+
     vite: {
         plugins: [tailwindcss()],
     },
+
+    modules: ["@nuxtjs/sitemap", "nuxt-jsonld", "nuxt-og-image"],
 });

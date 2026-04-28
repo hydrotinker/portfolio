@@ -164,12 +164,15 @@ const history: HistoryEntry[] = [
                 <div
                     class="flex flex-col items-start self-start sticky top-[66px]"
                 >
-                    <!-- Portrait placeholder -->
+                    <!-- Portrait -->
                     <div class="glass corners overflow-hidden">
                         <div class="ph aspect-[4/5]">
                             <img
                                 src="../assets/images/me.png"
-                                alt="Hydrotinker"
+                                alt="Ivan Morozov"
+                                width="842"
+                                height="1264"
+                                loading="lazy"
                             />
                         </div>
                         <div

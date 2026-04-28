@@ -1,5 +1,23 @@
 <script setup lang="ts">
+defineOgImage('OgImage', { title: 'Hello' })
 import type { NavItem } from "~/types/components";
+
+useSeoMeta({
+    title: "Hydrotinker — Senior Fullstack PHP Developer | Available for Hire",
+    description:
+        "Ivan Morozov — fullstack engineer specialising in distributed systems, edge runtimes, and high-performance web. Available for commissions Q2 2026.",
+    ogTitle:
+        "Hydrotinker — Senior Fullstack PHP Developer | Available for Hire",
+    ogDescription:
+        "Ivan Morozov — fullstack engineer specialising in distributed systems, edge runtimes, and high-performance web.",
+    ogUrl: "https://hydrotinker.online/",
+    ogType: "website",
+    twitterCard: "summary_large_image",
+    twitterTitle:
+        "Hydrotinker — Senior Fullstack PHP Developer | Available for Hire",
+    twitterDescription:
+        "Ivan Morozov — fullstack engineer specialising in distributed systems, edge runtimes, and high-performance web.",
+});
 
 const navItems = ref<NavItem[]>([
     { id: "hero", label: "00 // index" },
