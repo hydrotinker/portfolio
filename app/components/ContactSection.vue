@@ -75,12 +75,18 @@ const labelClass =
                         class="text-[clamp(30px,6vw,72px)] mt-0 mb-4"
                     />
                     <p
-                        class="text-white/78 max-w-[540px] leading-relaxed mb-[26px] text-sm sm:text-base"
+                        class="text-white/78 max-w-[540px] leading-relaxed mb-[16px] text-sm sm:text-base"
                     >
                         Commissions open for Q2 2026. Prefer projects with
                         interesting idea or technical weight — performance
                         budgets, challenging goals, anything running on an edge
                         runtime. Reply within 48h.
+                    </p>
+                    <p
+                        class="text-white/45 max-w-[540px] leading-relaxed mb-[26px] text-xs [font-family:var(--mono)] tracking-wide border-l-2 border-white/15 pl-3"
+                    >
+                        ⚠ I do not accept work from individuals or entities in
+                        OFAC-sanctioned countries or persons on sanctions lists.
                     </p>
 
                     <div class="glass corners p-[22px]">

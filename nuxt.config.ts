@@ -37,6 +37,24 @@ export default defineNuxtConfig({
         },
     },
 
+    gtag: {
+        enabled: process.env.NODE_ENV === "production",
+        initMode: "manual",
+        initCommands: [
+            [
+                "consent",
+                "default",
+                {
+                    ad_user_data: "denied",
+                    ad_personalization: "denied",
+                    ad_storage: "denied",
+                    analytics_storage: "denied",
+                    wait_for_update: 500,
+                },
+            ],
+        ],
+    },
+
     router: {
         options: {
             scrollBehaviorType: "smooth",
@@ -60,5 +78,5 @@ export default defineNuxtConfig({
         plugins: [tailwindcss()],
     },
 
-    modules: ["@nuxtjs/sitemap", "nuxt-jsonld", "nuxt-og-image"],
+    modules: ["@nuxtjs/sitemap", "nuxt-jsonld", "nuxt-og-image", "nuxt-gtag"],
 });

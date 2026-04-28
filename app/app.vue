@@ -1,4 +1,7 @@
 <script setup lang="ts">
+const { initialize } = useConsent();
+onMounted(() => initialize());
+
 useJsonld([
     {
         "@context": "https://schema.org",
@@ -48,4 +51,5 @@ useJsonld([
     <NuxtLayout>
         <NuxtPage />
     </NuxtLayout>
+    <CookieBanner />
 </template>
