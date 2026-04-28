@@ -505,6 +505,46 @@ a {
     border-right: 2px solid var(--purple);
 }
 
+.hover-corners {
+    position: relative;
+}
+
+.hover-corners::before,
+.hover-corners::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition:
+        opacity 0.22s ease,
+        transform 0.22s ease;
+}
+
+.hover-corners::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid var(--pink);
+    border-left: 2px solid var(--pink);
+    transform: translate(-6px, -6px);
+}
+
+.hover-corners::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 2px solid var(--purple);
+    border-right: 2px solid var(--purple);
+    transform: translate(6px, 6px);
+}
+
+.hover-corners:hover::before,
+.hover-corners:hover::after {
+    opacity: 1;
+    transform: translate(0, 0);
+}
+
 /* Layout container */
 .wrap {
     max-width: 1320px;

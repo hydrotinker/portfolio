@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import type { SkillDomain } from '~/types/components';
+import type {
+    Certificates,
+    SkillCertificate,
+    SkillDomain,
+} from "~/types/components";
 
 const skills = ref<SkillDomain[]>([
     {
@@ -33,16 +37,43 @@ const skills = ref<SkillDomain[]>([
         ],
     },
     {
-        domain: "OPS",
-        code: "SKL.OPS",
+        domain: "OPS/MISC",
+        code: "SKL.MISC",
         items: [
+            {
+                name: "AI",
+                lvl: 96,
+            },
             { name: "Docker", lvl: 90 },
             { name: "CI/CD", lvl: 84 },
-            { name: "Github Actions", lvl: 82 },
             { name: "Grafana", lvl: 80 },
         ],
     },
 ]);
+
+const certificates = ref<Certificates>({
+    AI: [
+        {
+            label: "Claude 101",
+            file: "/certificates/certificate-gj2ko4xn2svs-1776412248.pdf",
+        },
+        {
+            label: "Claude Code 101",
+            file: "/certificates/certificate-xfwv2o67pc4j-1777374983.pdf",
+        },
+    ],
+});
+const filter = ref<string>("");
+
+const showCertificates = (key: string) => {
+    filter.value = key;
+};
+
+const filteredCertificates = computed<Array<SkillCertificate>>(() =>
+    filter.value
+        ? (certificates.value[filter.value] ?? [])
+        : Object.values(certificates.value).flat(),
+);
 </script>
 
 <template>
@@ -71,7 +102,62 @@ const skills = ref<SkillDomain[]>([
             <div
                 class="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-[18px]"
             >
-                <SkillColumn v-for="col in skills" :key="col.code" :col="col" />
+                <SkillColumn
+                    v-for="col in skills"
+                    :key="col.code"
+                    :col="col"
+                    :certificates="certificates"
+                    @show:certificates="showCertificates"
+                />
+            </div>
+        </div>
+        <div class="wrap mt-6!">
+            <div
+                class="flex gap-1.5 flex-wrap justify-between items-center mb-3"
+            >
+                <span class="glitch">Certificates</span>
+                <div class="flex gap-1.5 flex-wrap">
+                    <button
+                        @click="filter = ''"
+                        class="[font-family:var(--mono)] text-[11px] tracking-[.18em] py-2 px-3 cursor-pointer rounded uppercase transition-[background-color,border-color]"
+                        :class="
+                            filter === ''
+                                ? 'bg-gradient-to-r from-pink to-purple text-[#0A0A0A] border border-transparent font-bold'
+                                : 'bg-transparent text-white/70 border border-white/15 font-medium'
+                        "
+                    >
+                        All
+                    </button>
+                    <button
+                        v-for="(_, key) in certificates"
+                        :key="key"
+                        @click="filter = key"
+                        class="[font-family:var(--mono)] text-[11px] tracking-[.18em] py-2 px-3 cursor-pointer rounded uppercase transition-[background-color,border-color]"
+                        :class="
+                            filter === key
+                                ? 'bg-gradient-to-r from-pink to-purple text-[#0A0A0A] border border-transparent font-bold'
+                                : 'bg-transparent text-white/70 border border-white/15 font-medium'
+                        "
+                    >
+                        {{ key }}
+                    </button>
+                </div>
+            </div>
+            <div
+                class="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-[18px]"
+            >
+                <div
+                    v-for="certificate of filteredCertificates"
+                    :key="certificate.label"
+                    class="corners py-[14px] px-4 border border-white/8 bg-white/2 cursor-pointer hover:border-white/20 hover:bg-white/ transition-colors duration-150"
+                    @click="
+                        navigateTo(certificate.file, {
+                            open: { target: '_blank' },
+                        })
+                    "
+                >
+                    {{ certificate.label }}
+                </div>
             </div>
         </div>
     </section>

@@ -25,6 +25,15 @@ export interface SkillDomain {
     items: SkillItem[];
 }
 
+export interface Certificates {
+    [key: string]: Array<SkillCertificate>;
+}
+
+export interface SkillCertificate {
+    label: string;
+    file: string;
+}
+
 export interface Post {
     n: string;
     date: string;

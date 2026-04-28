@@ -55,7 +55,7 @@ function handleNavClick(id: string) {
                     :to="`/#${item.id}`"
                     @click="$emit('set:active', item.id)"
                     :class="[
-                        '[font-family:var(--mono)] text-[11px] tracking-[.16em] uppercase px-3 py-2 rounded',
+                        'nav-link [font-family:var(--mono)] text-[11px] tracking-[.16em] uppercase px-3 py-2 rounded',
                         active === item.id
                             ? 'text-white bg-[linear-gradient(90deg,rgba(255,45,120,.18),rgba(155,48,255,.18))] border border-[rgba(255,45,120,.5)]'
                             : 'text-white/[.62] bg-transparent border border-transparent',
@@ -174,6 +174,50 @@ function handleNavClick(id: string) {
 </template>
 
 <style scoped>
+.nav-link {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s ease;
+}
+
+.nav-link::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 45, 120, 0.25),
+        rgba(155, 48, 255, 0.25)
+    );
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.nav-link::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 6px;
+    pointer-events: none;
+    box-shadow:
+        0 0 18px rgba(255, 45, 120, 0.7),
+        0 0 30px rgba(155, 48, 255, 0.5);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.nav-link:hover {
+    animation: btnPulse 1.1s ease-in-out infinite;
+}
+
+.nav-link:hover::before {
+    opacity: 1;
+}
+
+.nav-link:hover::after {
+    opacity: 1;
+}
+
 .overlay-enter-active,
 .overlay-leave-active {
     transition: opacity 0.25s ease;
