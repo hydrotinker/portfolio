@@ -1,13 +1,11 @@
 <script setup lang="ts">
-const items = ref([
-    "HYDROTINKER",
-    "FULL_STACK",
-    "AVAILABLE Q2/2026",
-    "BACKEND",
-    "YEREVAN ⇄ REMOTE",
-    "FRONTEND",
+import { useMainStore } from "../../stores/main";
+
+const { marqueeBarItems } = storeToRefs(useMainStore());
+const content = computed(() => [
+    ...marqueeBarItems.value,
+    ...marqueeBarItems.value,
 ]);
-const content = computed(() => [...items.value, ...items.value]);
 </script>
 
 <template>

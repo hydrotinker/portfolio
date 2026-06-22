@@ -37,6 +37,11 @@ export default defineNuxtConfig({
         },
     },
 
+    components: [
+        { path: "~/components/UI", pathPrefix: false },
+        "~/components",
+    ],
+
     gtag: {
         enabled: process.env.NODE_ENV === "production",
         initMode: "manual",
@@ -78,5 +83,5 @@ export default defineNuxtConfig({
         plugins: [tailwindcss()],
     },
 
-    modules: ["@nuxtjs/sitemap", "nuxt-jsonld", "nuxt-og-image", "nuxt-gtag"],
+    modules: ["@nuxtjs/sitemap", "nuxt-jsonld", "nuxt-gtag", "@pinia/nuxt"],
 });

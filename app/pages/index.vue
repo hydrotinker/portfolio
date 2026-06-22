@@ -1,7 +1,4 @@
 <script setup lang="ts">
-defineOgImage('OgImage', { title: 'Hello' })
-import type { NavItem } from "~/types/components";
-
 useSeoMeta({
     title: "Hydrotinker — Senior Fullstack PHP Developer | Available for Hire",
     description:
@@ -19,21 +16,13 @@ useSeoMeta({
         "Ivan Morozov — fullstack engineer specialising in distributed systems, edge runtimes, and high-performance web.",
 });
 
-const navItems = ref<NavItem[]>([
-    { id: "hero", label: "00 // index" },
-    { id: "projects", label: "01 // work" },
-    { id: "about", label: "02 // about" },
-    { id: "skills", label: "03 // stack" },
-    // { id: "blog", label: "04 // notes" },
-    { id: "contact", label: "05 // ping" },
-]);
+const { navItems, activeItem } = storeToRefs(useMainStore());
 
-const active = ref("hero");
 const isManualScroll = ref(false);
 
 const setActive = (v: string) => {
     isManualScroll.value = true;
-    active.value = v;
+    activeItem.value = v;
 };
 
 const onScrollEnd = () => {
@@ -42,16 +31,6 @@ const onScrollEnd = () => {
 
 const ids = navItems.value.map((n) => n.id);
 
-const onScroll = () => {
-    if (isManualScroll.value) return;
-    const y = window.scrollY + 120;
-    let cur: string = ids[0] ?? "hero";
-    for (const id of ids) {
-        const el = document.getElementById(id);
-        if (el && el.offsetTop <= y) cur = id;
-    }
-    active.value = cur;
-};
 const onKeydown = (e: KeyboardEvent) => {
     if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
@@ -61,29 +40,46 @@ const onKeydown = (e: KeyboardEvent) => {
     }
 };
 
+let observer: IntersectionObserver | null = null;
+
 onMounted(() => {
-    window.addEventListener("scroll", onScroll, { passive: true });
+    // Track the section nearest the top of the viewport via IntersectionObserver
+    // instead of an unthrottled scroll handler that forced an offsetTop reflow per
+    // nav id on every scroll event.
+    const sections = ids
+        .map((id) => document.getElementById(id))
+        .filter((el): el is HTMLElement => el !== null);
+
+    observer = new IntersectionObserver(
+        (entries) => {
+            if (isManualScroll.value) return;
+            for (const entry of entries) {
+                if (entry.isIntersecting && entry.target.id) {
+                    activeItem.value = entry.target.id;
+                }
+            }
+        },
+        // Bias toward the section just below the sticky header: only the slim band
+        // near the top of the viewport is treated as "active".
+        { rootMargin: "-120px 0px -70% 0px", threshold: 0 },
+    );
+    for (const el of sections) observer.observe(el);
+
     window.addEventListener("scrollend", onScrollEnd, { passive: true });
     window.addEventListener("keydown", onKeydown);
-    onScroll();
 });
 
 onUnmounted(() => {
-    window.removeEventListener("scroll", onScroll);
+    observer?.disconnect();
+    window.removeEventListener("scrollend", onScrollEnd);
     window.removeEventListener("keydown", onKeydown);
 });
 </script>
 
 <template>
-    <div class="mesh"></div>
     <div id="hero"></div>
-    <NavBar
-        :items="navItems"
-        :active="active"
-        @set:active="(v: string) => setActive(v)"
-    />
     <HeroSection />
-    <MarqueeBar />
+    <HomeMarqueeBar />
     <ProjectsSection />
     <AboutSection />
     <SkillsSection />

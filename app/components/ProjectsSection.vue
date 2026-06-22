@@ -1,18 +1,7 @@
 <script setup lang="ts">
 import type { Project } from "~/types/components";
 
-const projects = ref<Project[]>([
-    // {
-    //     code: "PRJ_001",
-    //     name: "NEURALINK.SH",
-    //     tag: "dev-tool",
-    //     blurb: "Terminal-native LLM orchestrator. Chain local models, shell commands and HTTP calls into a single re-runnable pipeline.",
-    //     stack: ["Rust", "TypeScript", "gRPC", "WebGPU"],
-    //     metric: ["12k", "weekly runs"],
-    //     year: "2025",
-    //     live: true,
-    // }
-]);
+const { projects } = storeToRefs(useProjectsStore());
 
 const filter = ref("ALL");
 const tags = computed(() => [
@@ -37,7 +26,7 @@ const list = computed(() =>
             <HudRule
                 label="WORK / CASE_FILES"
                 code="02//"
-                :right="`${projects.length} RECORDS`"
+                :right="`${projects.length} RECORD`"
             />
 
             <div
@@ -75,8 +64,7 @@ const list = computed(() =>
                     :index="i"
                 />
                 <div
-                    v-if="list.length === 0"
-                    class="col-span-full glass px-[6px] sm:px-[18px] py-[16px] sm:py-[48px] flex flex-col items-center gap-3 text-center"
+                    class="col glass px-[6px] sm:px-[18px] py-[16px] sm:py-[48px] flex flex-col justify-center items-center gap-3 text-center"
                 >
                     <span
                         class="text-pink [font-family:var(--mono)] text-[22px]"

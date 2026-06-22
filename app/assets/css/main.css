@@ -66,14 +66,26 @@ a {
     inset: 0;
     z-index: 0;
     pointer-events: none;
+    overflow: hidden;
+    mask-image: radial-gradient(ellipse at 50% 30%, #000 35%, transparent 80%);
+}
+
+/* White grid drifts via transform (GPU-composited) instead of
+   background-position (which forces a full-layer repaint every frame).
+   The element is oversized by one tile so the translate reveals no edge,
+   and a 64px shift loops seamlessly because the pattern is 64px-periodic. */
+.mesh::before {
+    content: "";
+    position: absolute;
+    inset: -64px;
     background-image:
         linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
     background-size:
         64px 64px,
         64px 64px;
-    mask-image: radial-gradient(ellipse at 50% 30%, #000 35%, transparent 80%);
-    animation: meshDrift 30s linear infinite;
+    animation: meshDrift 3s linear infinite;
+    will-change: transform;
 }
 
 .mesh::after {
@@ -88,15 +100,11 @@ a {
 }
 
 @keyframes meshDrift {
-    0% {
-        background-position:
-            0 0,
-            0 0;
+    from {
+        transform: translate(0, 0);
     }
-    100% {
-        background-position:
-            640px 640px,
-            640px 640px;
+    to {
+        transform: translate(64px, 64px);
     }
 }
 
@@ -270,6 +278,10 @@ a {
 }
 .btn.ghost {
     border-color: rgba(255, 255, 255, 0.25);
+}
+.btn.disabled {
+    border-color: rgba(255, 255, 255, 0.25);
+    pointer-events: none;
 }
 
 @keyframes btnPulse {
@@ -581,6 +593,9 @@ section {
     opacity: 0.45;
     pointer-events: none;
     z-index: 0;
+    /* Isolate onto its own layer so the costly blur rasterizes once
+       instead of being recomputed during compositing. */
+    transform: translateZ(0);
 }
 
 /* Image placeholders */
@@ -629,4 +644,34 @@ section {
 
 .blink {
     animation: blink 1s steps(2, start) infinite;
+}
+
+/* Skip rendering (and the expensive .glass backdrop-filter blur) for
+   below-the-fold sections until they scroll near the viewport.
+   `auto` in contain-intrinsic-size remembers each section's real size after
+   first render, so offsetTop stays accurate for the scroll-spy. The hero is
+   excluded — it's above the fold and its canvas needs a measurable size. */
+#projects,
+#about,
+#skills,
+#pipeline,
+#contact {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 800px;
+}
+
+/* Respect reduced-motion: freeze the continuous decorative animations.
+   The particle field renders a single static frame (see ParticleField.vue). */
+@media (prefers-reduced-motion: reduce) {
+    .mesh::before,
+    .sweep,
+    .marquee-track,
+    .glitch[data-text]::before,
+    .glitch[data-text]::after,
+    .blink {
+        animation: none !important;
+    }
+    .btn:hover {
+        animation: none;
+    }
 }

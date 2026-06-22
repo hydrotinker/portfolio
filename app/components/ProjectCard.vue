@@ -66,7 +66,7 @@ const hovered = ref(false);
                     {{ project.metric[1] }}
                 </div>
             </div>
-            <NuxtLink :to="`/case/${project.code}`">
+            <NuxtLink :to="`/case/${project.code.toLowerCase()}`">
                 <button class="btn px-[14px] py-[10px]">open_case →</button>
             </NuxtLink>
         </div>

@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import type { NavItem } from "~/types/components";
-
-defineProps<{ items: NavItem[]; active: string }>();
 const emit = defineEmits<{ "set:active": [value: string] }>();
+
+const { navItems, activeItem } = storeToRefs(useMainStore());
 
 const runtimeConfig = useRuntimeConfig();
 const mobileOpen = ref(false);
@@ -50,13 +49,13 @@ function handleNavClick(id: string) {
             <!-- Desktop nav -->
             <nav class="hidden lg:flex gap-1">
                 <NuxtLink
-                    v-for="item in items"
+                    v-for="item in navItems"
                     :key="item.id"
                     :to="`/#${item.id}`"
                     @click="$emit('set:active', item.id)"
                     :class="[
                         'nav-link [font-family:var(--mono)] text-[11px] tracking-[.16em] uppercase px-3 py-2 rounded',
-                        active === item.id
+                        activeItem === item.id
                             ? 'text-white bg-[linear-gradient(90deg,rgba(255,45,120,.18),rgba(155,48,255,.18))] border border-[rgba(255,45,120,.5)]'
                             : 'text-white/[.62] bg-transparent border border-transparent',
                     ]"
@@ -143,13 +142,13 @@ function handleNavClick(id: string) {
             <!-- Drawer links -->
             <div class="flex flex-col gap-1 p-4 flex-1">
                 <NuxtLink
-                    v-for="item in items"
+                    v-for="item in navItems"
                     :key="item.id"
                     :to="`/#${item.id}`"
                     @click="handleNavClick(item.id)"
                     :class="[
                         '[font-family:var(--mono)] text-[11px] tracking-[.16em] uppercase px-4 py-3 rounded w-full',
-                        active === item.id
+                        activeItem === item.id
                             ? 'text-white bg-[linear-gradient(90deg,rgba(255,45,120,.18),rgba(155,48,255,.18))] border border-[rgba(255,45,120,.5)]'
                             : 'text-white/[.62] bg-transparent border border-transparent hover:text-white hover:border-white/10',
                     ]"
