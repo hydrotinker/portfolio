@@ -5,12 +5,12 @@ export const useProjectsStore = defineStore("projects", () => {
     const projects = ref<Project[]>([
         {
             code: "PRJ_GID",
-            name: "Get Isekai'd",
+            name: "SL Project",
             tag: "product",
             status: "In progress",
             blurb: "Collaborative self-development platform for ADHD people and students.",
             stack: ["Laravel", "Nuxt", "webRTC", "Websockets"],
-            metric: ["JUNE 2026", "Open Beta"],
+            metric: ["AUGUST 2026", "Open Beta"],
             year: "2026",
             live: true,
             detail: {
@@ -35,8 +35,12 @@ export const useProjectsStore = defineStore("projects", () => {
                         date: new Date(2026, 4, 16),
                     },
                     {
-                        name: "Open Beta",
+                        name: "Closed Beta #3",
                         date: new Date(2026, 5, 22),
+                    },
+                    {
+                        name: "Open Beta",
+                        date: new Date(2026, 8, 14),
                     },
                 ],
                 client: "Self-initiated",
@@ -82,7 +86,7 @@ export const useProjectsStore = defineStore("projects", () => {
                     "The market gap isn't a missing feature — it's a missing system. One where habit mechanics, skill-building, goal-setting, and community reinforce each other rather than exist in parallel apps that compete for the same attention.",
                 ],
                 goal: [
-                    "Get Isekai'd is a B2C mobile and web platform that unifies productivity, goal-tracking, skill-building, and community collaboration into a single daily-use experience — with gamification as the connective tissue.",
+                    "SL Project is a B2C mobile and web platform that unifies productivity, goal-tracking, skill-building, and community collaboration into a single daily-use experience — with gamification as the connective tissue.",
                     "The goal is to build the app that makes fragmentation unnecessary: one place where users log habits, level up skills, collaborate with others pursuing similar goals, and feel the momentum of genuine progress — daily.",
                     "The immediate aim is to validate the core retention loop with a tightly scoped MVP, prove that the gamification mechanics (XP, levels, streaks, quests) drive the habit formation that the market's existing tools fail to sustain, and establish a freemium model where the free tier functions as a viral growth engine rather than a restricted demo.",
                 ],
