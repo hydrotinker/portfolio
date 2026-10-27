@@ -24,7 +24,14 @@ const hovered = ref(false);
             </span>
         </div>
 
-        <div class="ph aspect-video rounded-[6px]">
+        <img
+            v-if="project.detail.figures[0]"
+            :src="project.detail.figures[0].src"
+            :alt="`${project.name} — ${project.detail.figures[0].title}`"
+            class="aspect-video w-full rounded-[6px] object-cover"
+            loading="lazy"
+        />
+        <div v-else class="ph aspect-video rounded-[6px]">
             PROJECT CAPTURE · {{ project.tag.toUpperCase() }}
         </div>
 

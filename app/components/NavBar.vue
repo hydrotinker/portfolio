@@ -18,7 +18,7 @@ function handleNavClick(id: string) {
 
 <template>
     <header
-        class="sticky top-0 z-50 backdrop-blur-[14px] backdrop-saturate-[140%] bg-[linear-gradient(180deg,rgba(10,10,10,.85),rgba(10,10,10,.55))] border-b border-b-white/[.06]"
+        class="sticky top-0 z-50 bg-[linear-gradient(180deg,rgba(14,13,20,.98),rgba(10,10,10,.94))] border-b border-b-white/[.06]"
     >
         <div class="wrap flex items-center justify-between h-[66px]">
             <div class="flex items-center gap-[14px]">

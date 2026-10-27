@@ -18,7 +18,7 @@ const openResume = () => {
         class="relative min-h-[calc(100vh_-_180px)] pt-10 pb-[60px] overflow-hidden"
     >
         <div
-            class="orb w-[560px] h-[560px] -right-[140px] top-[180px] bg-[#9b30ff]"
+            class="orb w-[560px] h-[560px] -right-[140px] top-[180px]"
         />
         <ParticleField />
 

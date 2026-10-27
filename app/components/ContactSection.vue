@@ -45,10 +45,10 @@ const contacts = [
 ];
 
 const availability = [
-    ["Q1 · 2026", "booked", 0.95],
-    ["Q2 · 2026", "open", 0.35],
-    ["Q3 · 2026", "open", 0.1],
-    ["Q4 · 2026", "open", 0],
+    { quarter: "Q4 · 2026", bookedPercent: 86 },
+    { quarter: "Q1 · 2027", bookedPercent: 12 },
+    { quarter: "Q2 · 2027", bookedPercent: 0 },
+    { quarter: "Q3 · 2027", bookedPercent: 0 },
 ] as const;
 
 const inputClass =
@@ -77,7 +77,7 @@ const labelClass =
                     <p
                         class="text-white/78 max-w-[540px] leading-relaxed mb-[16px] text-sm sm:text-base"
                     >
-                        Commissions open for Q2 2026. Prefer projects with
+                        Open for commissions. Prefer projects with
                         interesting idea or technical weight — performance
                         budgets, challenging goals, anything running on an edge
                         runtime. Reply within 48h.
@@ -196,31 +196,29 @@ const labelClass =
                             ◆ AVAILABILITY
                         </div>
                         <div
-                            v-for="[k, s, v] in availability"
-                            :key="k"
+                            v-for="{ quarter, bookedPercent } in availability"
+                            :key="quarter"
                             class="my-[10px]"
                         >
                             <div
                                 class="flex justify-between [font-family:var(--mono)] text-xs"
                             >
-                                <span>{{ k }}</span>
-                                <span
-                                    :class="
-                                        s === 'open'
-                                            ? 'text-pink'
-                                            : 'text-white/50'
-                                    "
-                                    >{{ s.toUpperCase() }}</span
-                                >
+                                <span>{{ quarter }}</span>
+                                <span class="text-pink">
+                                    {{ bookedPercent }}%
+                                </span>
                             </div>
-                            <div class="h-1 bg-white/6 mt-[6px]">
+                            <div
+                                role="progressbar"
+                                :aria-label="`${quarter} booked capacity`"
+                                :aria-valuenow="bookedPercent"
+                                :aria-valuemin="0"
+                                :aria-valuemax="100"
+                                class="h-1 bg-white/6 mt-[6px]"
+                            >
                                 <div
-                                    :style="{ width: v * 100 + '%' }"
-                                    :class="
-                                        s === 'open'
-                                            ? 'h-full bg-gradient-to-r from-pink to-purple'
-                                            : 'h-full bg-white/22'
-                                    "
+                                    :style="{ width: bookedPercent + '%' }"
+                                    class="h-full bg-gradient-to-r from-pink to-purple"
                                 />
                             </div>
                         </div>

@@ -10,7 +10,7 @@ export const useProjectsStore = defineStore("projects", () => {
             status: "In progress",
             blurb: "Collaborative self-development platform for ADHD people and students.",
             stack: ["Laravel", "Nuxt", "webRTC", "Websockets"],
-            metric: ["AUGUST 2026", "Open Beta"],
+            metric: ["TBD", "Open Beta"],
             year: "2026",
             live: true,
             detail: {
@@ -40,7 +40,7 @@ export const useProjectsStore = defineStore("projects", () => {
                     },
                     {
                         name: "Open Beta",
-                        date: new Date(2026, 8, 14),
+                        date: new Date(2027, 0, 10),
                     },
                 ],
                 client: "Self-initiated",
@@ -213,11 +213,11 @@ export const useProjectsStore = defineStore("projects", () => {
                     {
                         name: "Launch",
                         weeks: 2,
-                        title: "Open beta & support",
+                        title: "Closed beta & support",
                         description:
-                            "Shipped to open beta and moved into continuous support — bug fixes, polish and incremental module updates driven by real usage. The CI/CD foundation made the steady cadence of fixes and feature tweaks cheap to release.",
+                            "Shipped to close beta and moved into continuous support — bug fixes, polish and incremental module updates driven by real usage. The CI/CD foundation made the steady cadence of fixes and feature tweaks cheap to release.",
                         tags: [
-                            "Open beta",
+                            "Closed beta",
                             "Continuous support",
                             "Iterative releases",
                         ],
@@ -325,7 +325,7 @@ export const useProjectsStore = defineStore("projects", () => {
                     },
                 ],
                 outcomes: [
-                    "Shipped to open beta as a complete social platform — realtime chat and party rooms, encrypted 1080p voice/video calls, and a gamified progression layer of quests, skills and achievements — delivered to both web and a native Electron desktop app from a single Laravel + Nuxt codebase.",
+                    "Shipped to close beta as a complete social platform — realtime chat and party rooms, encrypted 1080p voice/video calls, and a gamified progression layer of quests, skills and achievements — delivered to both web and a native Electron desktop app from a single Laravel + Nuxt codebase.",
                     "The modular-monolith bet was the real payoff: once the chat core was solid, each new subsystem (Quests, then Achievements, then Skills) landed in roughly a week without touching what already shipped. Continuous post-launch support became a steady, low-risk release cadence rather than a series of risky merges.",
                 ],
                 learned: [

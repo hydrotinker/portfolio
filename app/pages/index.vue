@@ -2,7 +2,7 @@
 useSeoMeta({
     title: "Hydrotinker — Senior Fullstack PHP Developer | Available for Hire",
     description:
-        "Ivan Morozov — fullstack engineer specialising in distributed systems, edge runtimes, and high-performance web. Available for commissions Q2 2026.",
+        "Ivan Morozov — fullstack engineer specialising in distributed systems, edge runtimes, and high-performance web. Open for commissions.",
     ogTitle:
         "Hydrotinker — Senior Fullstack PHP Developer | Available for Hire",
     ogDescription:
@@ -35,7 +35,7 @@ const onKeydown = (e: KeyboardEvent) => {
     if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         const el = document.getElementById("contact");
-        if (el) el.scrollIntoView({ behavior: "smooth" });
+        if (el) el.scrollIntoView({ behavior: "auto" });
         setActive("contact");
     }
 };

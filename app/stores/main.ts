@@ -15,7 +15,7 @@ export const useMainStore = defineStore("main", () => {
     const marqueeBarItems = ref(<string[]>[
         "HYDROTINKER",
         "FULL_STACK",
-        "AVAILABLE Q2/2026",
+        "OPEN FOR COMMISSIONS",
         "BACKEND",
         "YEREVAN ⇄ REMOTE",
         "FRONTEND",

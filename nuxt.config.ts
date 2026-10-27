@@ -62,7 +62,8 @@ export default defineNuxtConfig({
 
     router: {
         options: {
-            scrollBehaviorType: "smooth",
+            // Let CSS choose smooth scrolling or the reduced-motion fallback.
+            scrollBehaviorType: "auto",
         },
     },
 

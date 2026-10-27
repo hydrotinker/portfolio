@@ -5,14 +5,16 @@ onMounted(() => {
     if (!canvasRef.value) return;
     const cvs: HTMLCanvasElement = canvasRef.value;
 
-    const ctx = cvs.getContext("2d")!;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const context = cvs.getContext("2d");
+    if (!context) return;
+    const ctx: CanvasRenderingContext2D = context;
+    let dpr = 0;
     let w = 0,
         h = 0;
 
-    const reducedMotion = window.matchMedia(
+    const motionQuery = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
-    ).matches;
+    );
 
     interface Node {
         x: number;
@@ -23,7 +25,8 @@ onMounted(() => {
         hue: number;
     }
 
-    const N = 80;
+    const N = 48;
+    const FRAME_MS = 1000 / 60;
     const nodes: Node[] = [];
     const BASE_SPEED = 0.1;
     const DAMP = 0.984;
@@ -55,11 +58,21 @@ onMounted(() => {
     }
 
     function resize() {
-        w = cvs.offsetWidth;
-        h = cvs.offsetHeight;
-        cvs.width = w * dpr;
-        cvs.height = h * dpr;
+        const nextW = cvs.offsetWidth;
+        const nextH = cvs.offsetHeight;
+        const nextDpr = Math.min(window.devicePixelRatio || 1, 1.5);
+        if (w === nextW && h === nextH && dpr === nextDpr) return false;
+        for (const n of nodes) {
+            n.x = w ? (n.x / w) * nextW : Math.random() * nextW;
+            n.y = h ? (n.y / h) * nextH : Math.random() * nextH;
+        }
+        w = nextW;
+        h = nextH;
+        dpr = nextDpr;
+        cvs.width = Math.round(w * dpr);
+        cvs.height = Math.round(h * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        return true;
     }
 
     function seed() {
@@ -76,38 +89,38 @@ onMounted(() => {
         }
     }
 
-    // Canvas position relative to the viewport, cached to avoid a layout read
-    // on every mousemove. Refreshed on resize/scroll.
-    let rect = cvs.getBoundingClientRect();
-    const refreshRect = () => {
-        rect = cvs.getBoundingClientRect();
+    // Scroll only invalidates the cache; read layout when the pointer next moves.
+    let rect: DOMRect | null = null;
+    const invalidateRect = () => {
+        rect = null;
+        mx = my = -1;
     };
 
     resize();
     seed();
 
+    let resizeRaf = 0;
     const onResize = () => {
-        resize();
-        seed();
-        refreshRect();
-        if (reducedMotion || !running) render();
+        invalidateRect();
+        if (resizeRaf) return;
+        resizeRaf = requestAnimationFrame(() => {
+            resizeRaf = 0;
+            if (resize() && (!running || motionQuery.matches)) render();
+        });
     };
     window.addEventListener("resize", onResize);
-    window.addEventListener("scroll", refreshRect, { passive: true });
+    window.addEventListener("scroll", invalidateRect, { passive: true });
 
     let mx = -1,
         my = -1;
     const parent = cvs.parentElement!;
 
     const onMouseMove = (e: MouseEvent) => {
+        rect ??= cvs.getBoundingClientRect();
         mx = e.clientX - rect.left;
         my = e.clientY - rect.top;
     };
-    // Refresh the cached rect when the pointer enters: the initial read in
-    // onMounted can be stale after fonts load / hydration shifts the layout,
-    // and neither scroll nor resize fires for that. One read per enter keeps
-    // the per-mousemove path allocation-free while staying accurate.
-    const onMouseEnter = () => refreshRect();
+    const onMouseEnter = () => invalidateRect();
     const onMouseLeave = () => {
         mx = -1;
         my = -1;
@@ -116,10 +129,15 @@ onMounted(() => {
     parent.addEventListener("mousemove", onMouseMove);
     parent.addEventListener("mouseleave", onMouseLeave);
 
-    function step() {
+    // Observe actual hero-size changes (including font/layout changes), rather
+    // than resetting the backing canvas on every mobile viewport resize event.
+    const resizeObserver = new ResizeObserver(onResize);
+    resizeObserver.observe(parent);
+
+    function step(frameScale: number) {
         for (const n of nodes) {
-            n.x += n.vx;
-            n.y += n.vy;
+            n.x += n.vx * frameScale;
+            n.y += n.vy * frameScale;
             if (n.x < 0 || n.x > w) n.vx *= -1;
             if (n.y < 0 || n.y > h) n.vy *= -1;
             let nearMouse = false;
@@ -130,14 +148,15 @@ onMounted(() => {
                 if (d2 < 160 * 160) {
                     nearMouse = true;
                     const f = (1 - Math.sqrt(d2) / 160) * 0.08;
-                    n.vx += dx * f * 0.02;
-                    n.vy += dy * f * 0.02;
+                    n.vx += dx * f * 0.02 * frameScale;
+                    n.vy += dy * f * 0.02 * frameScale;
                 }
             }
             if (!nearMouse) {
                 const spd = Math.sqrt(n.vx * n.vx + n.vy * n.vy);
                 if (spd > BASE_SPEED) {
-                    const next = BASE_SPEED + (spd - BASE_SPEED) * DAMP;
+                    const next =
+                        BASE_SPEED + (spd - BASE_SPEED) * DAMP ** frameScale;
                     const scale = next / spd;
                     n.vx *= scale;
                     n.vy *= scale;
@@ -179,16 +198,37 @@ onMounted(() => {
     let raf = 0;
     let running = false;
     let visible = false;
+    let lastTick: number | null = null;
+    let lastDraw = 0;
+    let accumulated = 0;
 
-    function tick() {
-        step();
-        render();
+    function tick(timestamp: number) {
+        if (!running) return;
+        if (lastTick === null) {
+            lastDraw = timestamp;
+        } else {
+            accumulated += timestamp - lastTick;
+            if (accumulated >= FRAME_MS - 0.01) {
+                // Clamp catch-up after a stall so particles cannot jump far.
+                step(Math.min(timestamp - lastDraw, 50) / FRAME_MS);
+                render();
+                lastDraw = timestamp;
+                accumulated = Math.max(
+                    0,
+                    accumulated -
+                        Math.floor((accumulated + 0.01) / FRAME_MS) * FRAME_MS,
+                );
+            }
+        }
+        lastTick = timestamp;
         if (running) raf = requestAnimationFrame(tick);
     }
 
     function start() {
-        if (running || reducedMotion || !visible || document.hidden) return;
+        if (running || motionQuery.matches || !visible || document.hidden) return;
         running = true;
+        lastTick = null;
+        accumulated = 0;
         raf = requestAnimationFrame(tick);
     }
 
@@ -202,7 +242,7 @@ onMounted(() => {
         (entries) => {
             visible = entries[0]?.isIntersecting ?? false;
             if (visible) {
-                if (reducedMotion) render();
+                if (motionQuery.matches) render();
                 else start();
             } else {
                 stop();
@@ -219,15 +259,26 @@ onMounted(() => {
     };
     document.addEventListener("visibilitychange", onVisibility);
 
-    // Draw a single static frame for reduced-motion users.
-    if (reducedMotion) render();
+    const onMotionChange = () => {
+        if (motionQuery.matches) {
+            stop();
+            render();
+        } else {
+            start();
+        }
+    };
+    motionQuery.addEventListener("change", onMotionChange);
+    render();
 
     onUnmounted(() => {
         stop();
+        cancelAnimationFrame(resizeRaf);
         io.disconnect();
+        resizeObserver.disconnect();
+        motionQuery.removeEventListener("change", onMotionChange);
         document.removeEventListener("visibilitychange", onVisibility);
         window.removeEventListener("resize", onResize);
-        window.removeEventListener("scroll", refreshRect);
+        window.removeEventListener("scroll", invalidateRect);
         parent.removeEventListener("mouseenter", onMouseEnter);
         parent.removeEventListener("mousemove", onMouseMove);
         parent.removeEventListener("mouseleave", onMouseLeave);

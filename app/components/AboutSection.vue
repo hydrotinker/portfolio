@@ -167,13 +167,32 @@ const history: HistoryEntry[] = [
                     <!-- Portrait -->
                     <div class="glass corners overflow-hidden">
                         <div class="ph aspect-[4/5]">
-                            <img
-                                src="../assets/images/me.png"
-                                alt="Ivan Morozov"
-                                width="842"
-                                height="1264"
-                                loading="lazy"
-                            />
+                            <picture class="block w-full">
+                                <source
+                                    type="image/avif"
+                                    srcset="
+                                        /images/portrait/me-320.avif 320w,
+                                        /images/portrait/me-560.avif 560w,
+                                        /images/portrait/me-842.avif 842w
+                                    "
+                                    sizes="(min-width: 1320px) 551px, (min-width: 640px) calc(45vw - 43.2px), calc(100vw - 56px)"
+                                />
+                                <img
+                                    src="/images/portrait/me-842.webp"
+                                    srcset="
+                                        /images/portrait/me-320.webp 320w,
+                                        /images/portrait/me-560.webp 560w,
+                                        /images/portrait/me-842.webp 842w
+                                    "
+                                    sizes="(min-width: 1320px) 551px, (min-width: 640px) calc(45vw - 43.2px), calc(100vw - 56px)"
+                                    alt="Ivan Morozov"
+                                    width="842"
+                                    height="1264"
+                                    loading="lazy"
+                                    decoding="async"
+                                    class="w-full h-auto"
+                                />
+                            </picture>
                         </div>
                         <div
                             class="px-3.5 py-3 flex justify-between font-(--mono) text-[11px] tracking-[0.2em] text-white/60"

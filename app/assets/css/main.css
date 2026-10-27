@@ -32,6 +32,11 @@ body {
     font-family: var(--sans);
 }
 
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 68px;
+}
+
 body {
     overflow-x: hidden;
 }
@@ -60,7 +65,7 @@ a {
     color: #0a0a0a;
 }
 
-/* Animated grid mesh background */
+/* Static grid keeps the neon backdrop without continuous compositing work. */
 .mesh {
     position: fixed;
     inset: 0;
@@ -70,22 +75,16 @@ a {
     mask-image: radial-gradient(ellipse at 50% 30%, #000 35%, transparent 80%);
 }
 
-/* White grid drifts via transform (GPU-composited) instead of
-   background-position (which forces a full-layer repaint every frame).
-   The element is oversized by one tile so the translate reveals no edge,
-   and a 64px shift loops seamlessly because the pattern is 64px-periodic. */
 .mesh::before {
     content: "";
     position: absolute;
-    inset: -64px;
+    inset: 0;
     background-image:
         linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
     background-size:
         64px 64px,
         64px 64px;
-    animation: meshDrift 3s linear infinite;
-    will-change: transform;
 }
 
 .mesh::after {
@@ -97,15 +96,6 @@ a {
         linear-gradient(90deg, rgba(155, 48, 255, 0.12) 1px, transparent 1px);
     background-size: 320px 320px;
     mix-blend-mode: screen;
-}
-
-@keyframes meshDrift {
-    from {
-        transform: translate(0, 0);
-    }
-    to {
-        transform: translate(64px, 64px);
-    }
 }
 
 /* Scanline overlay */
@@ -167,11 +157,9 @@ a {
     position: relative;
     background: linear-gradient(
         180deg,
-        rgba(255, 255, 255, 0.04),
-        rgba(255, 255, 255, 0.015)
+        rgba(24, 21, 31, 0.94),
+        rgba(14, 13, 20, 0.90)
     );
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 14px;
     overflow: hidden;
@@ -585,17 +573,19 @@ section {
     pointer-events: none;
 }
 
-/* Blurry orbs */
+/* Soft neon light without a large filter surface. */
 .orb {
     position: absolute;
     border-radius: 50%;
-    filter: blur(80px);
+    background: radial-gradient(
+        circle closest-side,
+        rgba(155, 48, 255, 0.85),
+        rgba(155, 48, 255, 0.35) 45%,
+        transparent 100%
+    );
     opacity: 0.45;
     pointer-events: none;
     z-index: 0;
-    /* Isolate onto its own layer so the costly blur rasterizes once
-       instead of being recomputed during compositing. */
-    transform: translateZ(0);
 }
 
 /* Image placeholders */
@@ -646,8 +636,7 @@ section {
     animation: blink 1s steps(2, start) infinite;
 }
 
-/* Skip rendering (and the expensive .glass backdrop-filter blur) for
-   below-the-fold sections until they scroll near the viewport.
+/* Skip rendering below-the-fold sections until they scroll near the viewport.
    `auto` in contain-intrinsic-size remembers each section's real size after
    first render, so offsetTop stays accurate for the scroll-spy. The hero is
    excluded — it's above the fold and its canvas needs a measurable size. */
@@ -663,7 +652,10 @@ section {
 /* Respect reduced-motion: freeze the continuous decorative animations.
    The particle field renders a single static frame (see ParticleField.vue). */
 @media (prefers-reduced-motion: reduce) {
-    .mesh::before,
+    html {
+        scroll-behavior: auto;
+    }
+
     .sweep,
     .marquee-track,
     .glitch[data-text]::before,
